@@ -1,0 +1,232 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Electics Script</title>
+  <link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=Barlow:wght@300;400;500;600&display=swap" rel="stylesheet"/>
+  <style>
+    :root {
+      --red: #e03030;
+      --red-glow: rgba(224, 48, 48, 0.4);
+      --bg: #0a0a0a;
+      --card: #111111;
+      --card-border: #1f1f1f;
+      --text: #e0e0e0;
+      --muted: #666;
+    }
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+    body {
+      background: var(--bg); color: var(--text);
+      font-family: 'Barlow', sans-serif; min-height: 100vh;
+      display: flex; flex-direction: column; align-items: center;
+      padding: 60px 20px 80px;
+    }
+    body::before {
+      content: ''; position: fixed; top: -100px; left: 50%;
+      transform: translateX(-50%); width: 600px; height: 400px;
+      background: radial-gradient(ellipse at center, rgba(224,48,48,0.18) 0%, transparent 70%);
+      pointer-events: none; z-index: 0;
+    }
+    .hero { text-align: center; margin-bottom: 56px; position: relative; z-index: 1; }
+    .hero h1 { font-family: 'Bebas Neue', sans-serif; font-size: clamp(64px,14vw,96px); line-height: 0.9; letter-spacing: 4px; color: #fff; }
+    .hero h1 span { color: var(--red); display: block; text-shadow: 0 0 40px var(--red-glow), 0 0 80px var(--red-glow); }
+    .hero p { margin-top: 20px; font-size: 15px; font-weight: 300; color: var(--muted); max-width: 420px; margin-left: auto; margin-right: auto; line-height: 1.6; }
+    .section-label { font-size: 11px; letter-spacing: 4px; color: var(--muted); text-transform: uppercase; margin-bottom: 28px; text-align: center; }
+    .plans { display: flex; flex-direction: column; gap: 20px; width: 100%; max-width: 480px; position: relative; z-index: 1; }
+    .card { background: var(--card); border: 1px solid var(--card-border); border-radius: 16px; padding: 32px; }
+    .card.featured { border-color: var(--red); box-shadow: 0 0 30px rgba(224,48,48,0.12); }
+    .card-header { display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 20px; }
+    .plan-label { font-size: 11px; letter-spacing: 3px; color: var(--muted); text-transform: uppercase; }
+    .badge { background: var(--red); color: #fff; font-size: 10px; font-weight: 600; letter-spacing: 2px; text-transform: uppercase; padding: 4px 12px; border-radius: 20px; }
+    .price { display: flex; align-items: baseline; gap: 4px; margin-bottom: 4px; }
+    .price .dollar { font-size: 22px; color: var(--red); font-weight: 500; }
+    .price .amount { font-family: 'Bebas Neue', sans-serif; font-size: 72px; color: #fff; line-height: 1; }
+    .price .period { font-size: 14px; color: var(--muted); margin-left: 4px; }
+    .billing-note { font-size: 12px; color: var(--muted); margin-bottom: 28px; }
+    .divider { height: 1px; background: var(--card-border); margin-bottom: 24px; }
+    .features { list-style: none; display: flex; flex-direction: column; gap: 12px; margin-bottom: 28px; }
+    .features li { display: flex; align-items: center; gap: 12px; font-size: 14px; color: #ccc; }
+    .features li .check { width: 20px; height: 20px; border-radius: 50%; background: rgba(224,48,48,0.15); border: 1.5px solid rgba(224,48,48,0.5); display: flex; align-items: center; justify-content: center; flex-shrink: 0; }
+    .features li .check svg { width: 10px; height: 10px; stroke: var(--red); fill: none; stroke-width: 2.5; stroke-linecap: round; stroke-linejoin: round; }
+    .btn { width: 100%; padding: 16px; border-radius: 10px; font-family: 'Barlow', sans-serif; font-size: 15px; font-weight: 600; letter-spacing: 1px; cursor: pointer; border: none; transition: all 0.2s; }
+    .btn-outline { background: transparent; border: 1px solid #2a2a2a; color: #fff; }
+    .btn-outline:hover { border-color: #444; background: rgba(255,255,255,0.03); }
+    .btn-red { background: var(--red); color: #fff; }
+    .btn-red:hover { background: #c82828; box-shadow: 0 4px 20px rgba(224,48,48,0.4); transform: translateY(-1px); }
+    .btn-red:disabled { opacity: 0.6; cursor: not-allowed; transform: none; }
+    .modal-overlay { position: fixed; inset: 0; background: rgba(0,0,0,0.85); backdrop-filter: blur(6px); z-index: 100; display: none; align-items: center; justify-content: center; padding: 20px; }
+    .modal-overlay.active { display: flex; }
+    .modal { background: #111; border: 1px solid #222; border-radius: 20px; padding: 40px 32px; width: 100%; max-width: 420px; text-align: center; position: relative; }
+    .modal-close { position: absolute; top: 16px; right: 16px; background: none; border: none; color: var(--muted); font-size: 20px; cursor: pointer; }
+    .disc-icon { width: 60px; height: 60px; background: rgba(224,48,48,0.12); border: 1.5px solid rgba(224,48,48,0.4); border-radius: 50%; display: flex; align-items: center; justify-content: center; margin: 0 auto 20px; }
+    .disc-icon svg { width: 28px; height: 28px; fill: var(--red); }
+    .modal h2 { font-family: 'Bebas Neue', sans-serif; font-size: 36px; letter-spacing: 2px; color: #fff; margin-bottom: 10px; }
+    .step-desc { font-size: 14px; color: var(--muted); line-height: 1.6; margin-bottom: 20px; }
+    .plan-tag { display: inline-block; background: rgba(224,48,48,0.12); color: var(--red); font-size: 12px; font-weight: 600; letter-spacing: 2px; text-transform: uppercase; padding: 4px 14px; border-radius: 20px; margin-bottom: 16px; }
+    .info-box { background: #0d0d0d; border: 1px solid #1e1e1e; border-radius: 12px; padding: 16px; text-align: left; margin-bottom: 16px; }
+    .info-box .lbl { font-size: 11px; color: #555; letter-spacing: 2px; text-transform: uppercase; margin-bottom: 6px; }
+    .info-box p { font-size: 12px; color: #888; line-height: 1.6; margin: 0; }
+    #discord-id-input { width: 100%; background: #0d0d0d; border: 1px solid #2a2a2a; border-radius: 10px; padding: 14px 16px; color: #fff; font-family: 'Barlow', sans-serif; font-size: 14px; margin-bottom: 12px; outline: none; transition: border-color 0.2s; }
+    #discord-id-input:focus { border-color: var(--red); }
+    @keyframes spin { to { transform: rotate(360deg); } }
+    .spinner { width: 40px; height: 40px; border: 3px solid #222; border-top: 3px solid var(--red); border-radius: 50%; animation: spin 0.8s linear infinite; margin: 16px auto; }
+    .ok-icon { width: 60px; height: 60px; background: rgba(46,200,100,0.12); border: 1.5px solid rgba(46,200,100,0.4); border-radius: 50%; display: flex; align-items: center; justify-content: center; margin: 0 auto 16px; }
+    .err-icon { width: 60px; height: 60px; background: rgba(224,48,48,0.12); border: 1.5px solid rgba(224,48,48,0.4); border-radius: 50%; display: flex; align-items: center; justify-content: center; margin: 0 auto 16px; }
+  </style>
+</head>
+<body>
+
+  <div class="hero">
+    <h1>ELECTICS<span>SCRIPT</span></h1>
+    <p>The most advanced court vision script. Choose a plan, pay securely, and get your Discord role instantly.</p>
+  </div>
+
+  <p class="section-label">Choose Your Plan</p>
+
+  <div class="plans">
+    <div class="card">
+      <div class="card-header"><span class="plan-label">Monthly</span></div>
+      <div class="price"><span class="dollar">$</span><span class="amount">15</span><span class="period">/ mo</span></div>
+      <p class="billing-note">Billed once · 30 day access</p>
+      <div class="divider"></div>
+      <ul class="features">
+        <li><span class="check"><svg viewBox="0 0 12 12"><polyline points="2,6 5,9 10,3"/></svg></span>Full Electics Script access</li>
+        <li><span class="check"><svg viewBox="0 0 12 12"><polyline points="2,6 5,9 10,3"/></svg></span>Zen &amp; Tempo shooting modes</li>
+        <li><span class="check"><svg viewBox="0 0 12 12"><polyline points="2,6 5,9 10,3"/></svg></span>Discord role included</li>
+      </ul>
+      <button class="btn btn-outline" onclick="openModal('monthly','Monthly — $15/mo')">Get Started</button>
+    </div>
+
+    <div class="card featured">
+      <div class="card-header"><span class="plan-label">Quarterly</span><span class="badge">Best Value</span></div>
+      <div class="price"><span class="dollar">$</span><span class="amount">40</span><span class="period">/ 3mo</span></div>
+      <p class="billing-note">Billed once · 90 day access · Save $5</p>
+      <div class="divider"></div>
+      <ul class="features">
+        <li><span class="check"><svg viewBox="0 0 12 12"><polyline points="2,6 5,9 10,3"/></svg></span>Everything in Monthly</li>
+        <li><span class="check"><svg viewBox="0 0 12 12"><polyline points="2,6 5,9 10,3"/></svg></span>Priority Discord support</li>
+        <li><span class="check"><svg viewBox="0 0 12 12"><polyline points="2,6 5,9 10,3"/></svg></span>Early feature access</li>
+        <li><span class="check"><svg viewBox="0 0 12 12"><polyline points="2,6 5,9 10,3"/></svg></span>Electics Script role</li>
+        <li><span class="check"><svg viewBox="0 0 12 12"><polyline points="2,6 5,9 10,3"/></svg></span>Locked-in price guarantee</li>
+      </ul>
+      <button class="btn btn-red" onclick="openModal('quarterly','Quarterly — $40/3mo')">Get Started</button>
+    </div>
+  </div>
+
+  <!-- MODAL -->
+  <div class="modal-overlay" id="modal" onclick="handleOverlayClick(event)">
+    <div class="modal">
+      <button class="modal-close" onclick="closeModal()">✕</button>
+      <div class="disc-icon">
+        <svg viewBox="0 0 24 24"><path d="M20.317 4.37a19.791 19.791 0 0 0-4.885-1.515.074.074 0 0 0-.079.037c-.21.375-.444.864-.608 1.25a18.27 18.27 0 0 0-5.487 0 12.64 12.64 0 0 0-.617-1.25.077.077 0 0 0-.079-.037A19.736 19.736 0 0 0 3.677 4.37a.07.07 0 0 0-.032.027C.533 9.046-.32 13.58.099 18.057a.082.082 0 0 0 .031.057 19.9 19.9 0 0 0 5.993 3.03.078.078 0 0 0 .084-.028c.462-.63.874-1.295 1.226-1.994a.076.076 0 0 0-.041-.106 13.107 13.107 0 0 1-1.872-.892.077.077 0 0 1-.008-.128 10.2 10.2 0 0 0 .372-.292.074.074 0 0 1 .077-.01c3.928 1.793 8.18 1.793 12.062 0a.074.074 0 0 1 .078.01c.12.098.246.198.373.292a.077.077 0 0 1-.006.127 12.299 12.299 0 0 1-1.873.892.077.077 0 0 0-.041.107c.36.698.772 1.362 1.225 1.993a.076.076 0 0 0 .084.028 19.839 19.839 0 0 0 6.002-3.03.077.077 0 0 0 .032-.054c.5-5.177-.838-9.674-3.549-13.66a.061.061 0 0 0-.031-.03zM8.02 15.33c-1.183 0-2.157-1.085-2.157-2.419 0-1.333.956-2.419 2.157-2.419 1.21 0 2.176 1.096 2.157 2.42 0 1.333-.956 2.418-2.157 2.418zm7.975 0c-1.183 0-2.157-1.085-2.157-2.419 0-1.333.955-2.419 2.157-2.419 1.21 0 2.176 1.096 2.157 2.42 0 1.333-.946 2.418-2.157 2.418z"/></svg>
+      </div>
+      <span class="plan-tag" id="modal-plan-tag">Monthly</span>
+
+      <!-- STEP 1: Discord ID -->
+      <div id="step-id">
+        <h2>GET ACCESS</h2>
+        <p class="step-desc">Enter your Discord User ID to link your purchase to your account.</p>
+        <div class="info-box">
+          <p class="lbl">How to find your User ID</p>
+          <p>Discord: <strong style="color:#ccc">Settings → Advanced → Developer Mode ON</strong>, then right-click your name → <strong style="color:#ccc">Copy User ID</strong>.</p>
+        </div>
+        <input id="discord-id-input" type="text" placeholder="Discord User ID (e.g. 123456789012345678)" oninput="clearErr()"/>
+        <p id="id-error" style="color:#e03030;font-size:12px;margin-bottom:10px;display:none;">Please enter a valid Discord User ID (17–19 digits).</p>
+        <button class="btn btn-red" onclick="startCheckout()">Continue to Payment →</button>
+      </div>
+
+      <!-- STEP 2: Loading -->
+      <div id="step-loading" style="display:none;">
+        <h2>LOADING</h2>
+        <p class="step-desc">Setting up your secure checkout...</p>
+        <div class="spinner"></div>
+      </div>
+
+      <!-- STEP 3: Success banner (after returning from Stripe) -->
+      <div id="step-success" style="display:none;">
+        <div class="ok-icon">
+          <svg viewBox="0 0 24 24" width="28" height="28" fill="none" stroke="#2ec864" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg>
+        </div>
+        <h2 style="color:#2ec864;">PAYMENT SUCCESSFUL!</h2>
+        <p class="step-desc">Your Discord role is being assigned right now. Check your DMs and your server!</p>
+      </div>
+
+      <!-- STEP 4: Error -->
+      <div id="step-error" style="display:none;">
+        <div class="err-icon">
+          <svg viewBox="0 0 24 24" width="26" height="26" fill="none" stroke="#e03030" stroke-width="2.5" stroke-linecap="round"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
+        </div>
+        <h2>SOMETHING WENT WRONG</h2>
+        <p id="err-msg" class="step-desc">Could not connect. Please try again.</p>
+        <button class="btn btn-red" onclick="resetModal()">Try Again</button>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    const steps = ['step-id','step-loading','step-success','step-error'];
+    function show(id) { steps.forEach(s => document.getElementById(s).style.display = s===id ? 'block' : 'none'); }
+
+    let currentPlan = 'monthly';
+
+    // Show success if returning from Stripe
+    window.addEventListener('load', () => {
+      const params = new URLSearchParams(window.location.search);
+      if (params.get('success') === 'true') {
+        document.getElementById('modal').classList.add('active');
+        show('step-success');
+        window.history.replaceState({}, '', window.location.pathname);
+      }
+    });
+
+    function openModal(plan, label) {
+      currentPlan = plan;
+      document.getElementById('modal-plan-tag').textContent = label;
+      resetModal();
+      document.getElementById('modal').classList.add('active');
+    }
+
+    function closeModal() { document.getElementById('modal').classList.remove('active'); }
+    function handleOverlayClick(e) { if (e.target === document.getElementById('modal')) closeModal(); }
+    function clearErr() { document.getElementById('id-error').style.display = 'none'; }
+
+    function resetModal() {
+      show('step-id');
+      document.getElementById('discord-id-input').value = '';
+      clearErr();
+    }
+
+    async function startCheckout() {
+      const discordId = document.getElementById('discord-id-input').value.trim();
+      if (!/^\d{17,19}$/.test(discordId)) {
+        document.getElementById('id-error').style.display = 'block';
+        return;
+      }
+
+      show('step-loading');
+
+      try {
+        const res = await fetch('/.netlify/functions/create-checkout', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ discordId, plan: currentPlan })
+        });
+
+        const data = await res.json();
+
+        if (data.url) {
+          window.location.href = data.url;
+        } else {
+          document.getElementById('err-msg').textContent = data.error || 'Could not create checkout.';
+          show('step-error');
+        }
+      } catch (err) {
+        document.getElementById('err-msg').textContent = 'Network error. Please try again.';
+        show('step-error');
+      }
+    }
+  </script>
+
+</body>
+</html>
